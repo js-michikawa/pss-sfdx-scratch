@@ -51,6 +51,37 @@ sf org list
 
 # 組織の削除
 sf org delete scratch --target-org MyScratchOrg
+
+# Dev Hub の制限を確認
+sf org list limits --target-org DevHub
+```
+
+### Dev Hub の制限
+
+スクラッチ組織を作成する前に、必ず Dev Hub の残り作成回数を確認してください。
+
+**重要な制限**:
+
+1. **DailyScratchOrgs** - 1日あたりの作成数
+   - Developer Edition: 6個/日
+   - Enterprise Edition: 200個/日
+   - UTC 時間でリセット (日本時間 午前9時)
+
+2. **ActiveScratchOrgs** - 同時にアクティブにできる数
+   - Developer Edition: 3個
+   - Enterprise Edition: 40個
+
+**確認コマンド**:
+```bash
+sf org list limits --target-org DevHub
+```
+
+**制限に達した場合の対処法**:
+- DailyScratchOrgs: 翌日まで待つ (削除しても回復しない)
+- ActiveScratchOrgs: 不要なスクラッチ組織を削除する
+
+詳細は [/check-devhub-limits ワークフロー](../../.agent/workflows/check-devhub-limits.md) を参照してください。
+
 ```
 
 ### プロジェクト管理
