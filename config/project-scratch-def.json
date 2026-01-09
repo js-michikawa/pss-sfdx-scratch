@@ -8,6 +8,7 @@
     "ServiceCloud",
     "OmniStudioRuntime",
     "OmniStudioDesigner",
+    "OmnistudioMetadata",
     "MultiCurrency"
   ],
   "settings": {
@@ -25,12 +26,7 @@
       "enableCreateEditOnArticlesTab": true,
       "enableExternalMediaContent": true
     },
-    "accountSettings": {
-      "enablePersonAccounts": true
-    },
-    "notesSettings": {
-      "enableEnhancedNotes": true
-    },
+
     "pathAssistantSettings": {
       "pathAssistantEnabled": true
     },
