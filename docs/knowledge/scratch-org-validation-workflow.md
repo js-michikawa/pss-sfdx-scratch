@@ -26,26 +26,67 @@ sf project retrieve start --metadata Settings --wait 30
 
 ### 3. 不要なメタデータの削除
 
-取得したメタデータから、プロジェクトに必要なファイルのみを残します。
+⚠️ **重要**: `sf project retrieve start --metadata Settings` を実行すると、139個もの設定ファイルが取得されます。**必ずプロジェクトに必要なファイルのみを残してください。**
 
-**必要な設定ファイルの例** (PSS プロジェクト):
-- `OmniStudio.settings-meta.xml`
-- `Communities.settings-meta.xml`
-- `Knowledge.settings-meta.xml`
-- `PathAssistant.settings-meta.xml`
-- `Chatter.settings-meta.xml`
-- `Case.settings-meta.xml`
-- `OmniChannel.settings-meta.xml`
+#### 3-1. 取得されたファイルを確認
 
-**PowerShell で不要なファイルを削除**:
+```bash
+# 取得されたファイル数を確認
+Get-ChildItem -Path "force-app\main\default\settings" | Measure-Object
+
+# ファイル一覧を表示
+Get-ChildItem -Path "force-app\main\default\settings" | Select-Object Name
+```
+
+#### 3-2. 必要なファイルを特定
+
+**PSS プロジェクトで必要な設定ファイル**:
+- `OmniStudio.settings-meta.xml` - OmniStudio の設定 (手動で ON にした設定)
+
+**不要な設定ファイルの例**:
+- `Communities.settings-meta.xml` - `project-scratch-def.json` の `settings` で管理
+- `Knowledge.settings-meta.xml` - `project-scratch-def.json` の `settings` で管理
+- `Case.settings-meta.xml` - `project-scratch-def.json` の `settings` で管理
+- その他の Industry Cloud 関連ファイル (Analytics, HealthCloud, FinancialServices など)
+
+**判断基準**:
+1. `project-scratch-def.json` の `settings` セクションで既に定義されている設定 → **不要**
+2. `project-scratch-def.json` の `features` で有効化されている機能 → **不要**
+3. Setup で手動で ON にした設定で、メタデータとして管理したいもの → **必要**
+
+#### 3-3. 不要なファイルを削除
+
+**方法1: 必要なファイルのみを残して削除**
+
 ```powershell
-# 必要なファイルのみを残して削除
-Remove-Item -Path "force-app\main\default\settings\*" `
-  -Exclude "OmniStudio.settings-meta.xml","Communities.settings-meta.xml","Knowledge.settings-meta.xml","PathAssistant.settings-meta.xml","Chatter.settings-meta.xml","Case.settings-meta.xml","OmniChannel.settings-meta.xml" `
-  -Force
+# 必要なファイルのリストを定義
+$keepFiles = @(
+    "OmniStudio.settings-meta.xml"
+)
 
-# 不要なディレクトリを削除
-Remove-Item -Path "force-app\main\default\*" -Exclude "settings" -Recurse -Force
+# 必要なファイル以外を削除
+Get-ChildItem -Path "force-app\main\default\settings" | 
+    Where-Object { $_.Name -notin $keepFiles } | 
+    Remove-Item -Force
+```
+
+**方法2: 不要なディレクトリも削除**
+
+```powershell
+# settings 以外のディレクトリを削除
+Get-ChildItem -Path "force-app\main\default" -Directory | 
+    Where-Object { $_.Name -ne "settings" } | 
+    Remove-Item -Recurse -Force
+```
+
+#### 3-4. 削除結果を確認
+
+```bash
+# 残ったファイルを確認
+Get-ChildItem -Path "force-app\main\default\settings"
+
+# Git の変更状況を確認
+git status --short
 ```
 
 ### 4. スクラッチ組織の削除と再作成
@@ -74,9 +115,57 @@ sf org open
 - エラーが発生していないか
 - 必要なオブジェクトやコンポーネントが利用可能か
 
-### 6. コミット
+### 6. コミット前の確認 ✅
 
-検証が成功したら、変更をコミットします。
+**⚠️ 必須**: コミット前に必ず以下を確認してください。
+
+#### チェックリスト
+
+```bash
+# 1. 変更されたファイルを確認
+git status
+
+# 2. 各ファイルの差分を確認
+git diff
+
+# 3. force-app ディレクトリの内容を確認
+git ls-files force-app/
+```
+
+**確認項目**:
+
+- [ ] **不要な設定ファイルが含まれていないか**
+  - `force-app/main/default/settings/` に必要なファイルのみが存在するか
+  - Industry Cloud 関連の不要なファイル (Analytics, HealthCloud など) が含まれていないか
+  
+- [ ] **不要なディレクトリが含まれていないか**
+  - `force-app/main/default/` に `settings` 以外のディレクトリがないか
+  - `applications`, `aura`, `classes`, `objects` などが含まれていないか
+
+- [ ] **project-scratch-def.json の変更が意図したものか**
+  - 不要な feature が追加されていないか
+  - JSON フォーマットが正しいか
+
+- [ ] **ドキュメントの内容が正しいか**
+  - 追加したドキュメントに誤りがないか
+  - リンクが正しく機能するか
+
+#### 問題が見つかった場合
+
+```bash
+# ステージングから削除
+git reset HEAD <ファイル名>
+
+# ファイルを削除
+Remove-Item -Path "<ファイルパス>" -Force
+
+# 再度確認
+git status
+```
+
+### 7. コミット
+
+検証が成功し、確認チェックリストを全てクリアしたら、変更をコミットします。
 
 ```bash
 # 変更をステージング
