@@ -1,0 +1,48 @@
+{
+  "orgName": "PSS Customer Portal",
+  "edition": "Developer",
+  "features": [
+    "EnableSetPasswordInApi",
+    "PublicSectorAccess",
+    "PublicSectorSiteTemplate",
+    "ServiceCloud",
+    "OmniStudioRuntime",
+    "OmniStudioDesigner",
+    "MultiCurrency"
+  ],
+  "settings": {
+    "lightningExperienceSettings": {
+      "enableS1DesktopEnabled": true
+    },
+    "mobileSettings": {
+      "enableS1EncryptedStoragePref2": false
+    },
+    "communitiesSettings": {
+      "enableNetworksEnabled": true
+    },
+    "knowledgeSettings": {
+      "enableKnowledge": true,
+      "enableCreateEditOnArticlesTab": true,
+      "enableExternalMediaContent": true
+    },
+    "accountSettings": {
+      "enablePersonAccounts": true
+    },
+    "notesSettings": {
+      "enableEnhancedNotes": true
+    },
+    "pathAssistantSettings": {
+      "pathAssistantEnabled": true
+    },
+    "chatterSettings": {
+      "enableChatter": true
+    },
+    "caseSettings": {
+      "emailToCase": true,
+      "webToCase": true
+    },
+    "omniChannelSettings": {
+      "enableOmniChannel": true
+    }
+  }
+}
